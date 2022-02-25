@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
-namespace RomanNumbers
+namespace ConsoleUI
 {
-    class Program
+    public class RomanNumbers
     {
-        static void Main()
+        private static void Main()
         {
+            var romanNumbers = new RomanNumbers();
+
             Console.WriteLine("type a roman number...");
 
             string romanNumber = Console.ReadLine();
 
-            int integerNumber = ConvertRomanToInteger(romanNumber);
+            var integerNumber = romanNumbers.ConvertRomanToInteger(romanNumber);
 
             if (integerNumber == 0)
             {
@@ -24,7 +27,7 @@ namespace RomanNumbers
             }
         }
 
-        static int ConvertRomanToInteger(string romanNumber)
+        public int ConvertRomanToInteger(string romanNumber)
         {
             int integerNumber = 0;
 
@@ -36,7 +39,8 @@ namespace RomanNumbers
                 {
                     if (i > 0)
                     {
-                        if (GetDigit(romanNumbers[i - 1]) < GetDigit(romanNumbers[i]) || GetDigit(romanNumbers[i - 1]) == GetDigit(romanNumbers[i]))
+                        if (GetDigit(romanNumbers[i - 1]) < GetDigit(romanNumbers[i]) 
+                            || GetDigit(romanNumbers[i - 1]) == GetDigit(romanNumbers[i]))
                         {
                             integerNumber += GetDigit(romanNumbers[i]);
                         }
@@ -55,22 +59,24 @@ namespace RomanNumbers
             return integerNumber;
         }
 
-        static bool IsValid(char[] romanNumbers)
+        private bool IsValid(char[] romanNumbers)
         {
             bool valid = true;
 
-            if (romanNumbers.Count(x => x == 'I') > 3 
-                || romanNumbers.Count(x => x == 'V') > 3
-                || romanNumbers.Count(x => x == 'X') > 3
-                || romanNumbers.Count(x => x == 'L') > 3
-                || romanNumbers.Count(x => x == 'C') > 3
-                || romanNumbers.Count(x => x == 'D') > 3
-                || romanNumbers.Count(x => x == 'M') > 3)
+            var pattern = @"([I.V.X.L.C.D.M])\1{3,}";
+
+            string rnString = new string(romanNumbers);
+
+            Match m = Regex.Match(rnString, pattern, RegexOptions.IgnoreCase);
+
+            if (m.Success)
             {
                 valid = false;
             }
 
-            if (romanNumbers.Count(x => x == 'V') > 1 || romanNumbers.Count(x => x == 'L') > 1 || romanNumbers.Count(x => x == 'D') > 1)
+            if (romanNumbers.Count(x => x == 'V') > 1 
+                || romanNumbers.Count(x => x == 'L') > 1 
+                || romanNumbers.Count(x => x == 'D') > 1)
             {
                 valid = false;
             }
@@ -79,7 +85,23 @@ namespace RomanNumbers
             {
                 if (i > 0)
                 {
-                    if (romanNumbers[i - 1] == 'X' && romanNumbers[i] == 'V')
+                    if ((romanNumbers[i - 1] == 'L' || romanNumbers[i - 1] == 'C' || romanNumbers[i - 1] == 'D' || romanNumbers[i - 1] == 'M') && romanNumbers[i] == 'I')
+                    {
+                        valid = false;
+                    }
+                    if ((romanNumbers[i - 1] == 'X' || romanNumbers[i - 1] == 'L' || romanNumbers[i - 1] == 'D') && romanNumbers[i] == 'V')
+                    {
+                        valid = false;
+                    }
+                    if ((romanNumbers[i - 1] == 'D' || romanNumbers[i - 1] == 'M') && romanNumbers[i] == 'X')
+                    {
+                        valid = false;
+                    }
+                    if (romanNumbers[i - 1] == 'D' && romanNumbers[i] == 'L')
+                    {
+                        valid = false;
+                    }
+                    if (romanNumbers[i - 1] == 'M' && romanNumbers[i] == 'D')
                     {
                         valid = false;
                     }
@@ -93,7 +115,7 @@ namespace RomanNumbers
             return valid;
         }
 
-        static int GetDigit(char romanNumber)
+        private int GetDigit(char romanNumber)
         {
             const int I = 1;
             const int V = 5;
